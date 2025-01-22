@@ -1,0 +1,251 @@
+syntax = "proto3";
+package common;
+option go_package = "protos/common"; // TODO: manuel düzelttim common importu bunun generated go file içerisinde
+
+enum RestrictionVisibility {
+  NOT_VISIBLE = 0;
+  PARTIALLY_VISIBLE = 1;
+  FULLY_VISIBLE = 2;
+}
+
+enum Service {
+  PASSENGER = 0;
+  CARGO = 1;
+  MILITARY_AND_GOVERNMENT = 2;
+  BUSINESS_JETS = 3;
+  GENERAL_AVIATION = 4;
+  HELICOPTERS = 5;
+  LIGHTER_THAN_AIR = 6;
+  GLIDERS = 7;
+  DRONES = 8;
+  GROUND_VEHICLES = 9;
+  OTHER_SERVICE = 10;
+  NON_CATEGORIZED = 11;
+}
+
+enum TrafficType {
+  NONE = 0;
+  GROUND_ONLY = 1;
+  AIRBORNE_ONLY = 2;
+  ALL = 3;
+}
+
+enum DataSource {
+  ADSB = 0;
+  MLAT = 1;
+  FLARM = 2;
+  FAA = 3;
+  ESTIMATED = 4;
+  SATELLITE = 5;
+  OTHER_DATA_SOURCE = 6;
+  UAT = 7;
+  SPIDERTRACKS = 8;
+  AUS = 9;
+}
+
+enum Icon {
+  B738 = 0;
+  FGTR = 1;
+  ASW20 = 2;
+  C206 = 3;
+  C303 = 4;
+  LJ60 = 5;
+  Q300 = 6;
+  B736 = 7;
+  FOKKER100 = 8;
+  RJ85 = 9;
+  A320 = 10;
+  B757 = 11;
+  B767 = 12;
+  A3ST = 13;
+  MD11 = 14;
+  A330 = 15;
+  A343 = 16;
+  A346 = 17;
+  B777 = 18;
+  B747 = 19;
+  A380 = 20;
+  A225 = 21;
+  SI2 = 22;
+  EC = 23;
+  BALL = 24;
+  GRND = 25;
+  SLEI = 26;
+  DRON = 27;
+  SAT = 28;
+  ISS = 29;
+}
+
+enum Status {
+  NORMAL = 0;
+  BACKGROUND = 1;
+  EMERGENCY = 2;
+  NOT_AVAILABLE = 3;
+  LIVE = 4;
+}
+
+// TODO: check units
+message EMSInfo {
+  // Altimeter setting (QFE or QNH/QNE)
+  int32 qnh = 1;
+  // MCP/FCU selected altitude (BDS4,0)
+  int32 amcp = 2;
+  // FMS selected altitude (BDS4,0)
+  int32 afms = 3;
+  // Outside air temperature
+  int32 oat = 4;
+  // Indicated airspeed (BDS6,0), knots
+  int32 ias = 5;
+  // True airspeed (BDS0,5), knots
+  int32 tas = 6;
+  // Mach number (BDS6,0), 1e3
+  // `704` = M0.704
+  int32 mach = 7;
+  int32 agps = 8;
+  int32 agpsdiff = 9; // |amcp - agps|
+  int32 apflags = 10; // often null
+  int32 wind_dir = 11;
+  int32 wind_speed = 12;
+  int32 rs = 13;
+}
+
+message EMSAvailability {
+  bool qnh_availability = 1;
+  bool amcp_availability = 2;
+  bool afms_availability = 3;
+  bool oat_availability = 4;
+  bool ias_availability = 5;
+  bool tas_availability = 6;
+  bool mach_availability = 7;
+  bool agps_availability = 8;
+  bool agpsdiff_availability = 9;
+  bool apflags_availability = 10;
+  bool wind_dir_availability = 11;
+  bool wind_speed_availability = 12;
+  bool rs_availability = 13;
+}
+
+message Schedule {
+  int32 std = 1;
+  int32 etd = 2;
+  int32 atd = 3;
+  int32 sta = 4;
+  int32 eta = 5;
+  int32 ata = 6;
+  int32 progress_pct = 7;
+}
+
+message Route {
+  string from = 1;
+  string to = 2;
+  string diverted_to = 3;
+}
+
+// 15, 16, 17, 18, 19 available only when flight is selected
+message ExtraFlightInfo {
+  // IATA Flight number, e.g. `CX8747`
+  string flight = 1;
+  // Aircraft registration, e.g. `B-HUJ`
+  string reg = 2;
+  Route route = 3;
+  string type = 4;
+  // Squawk number, in base-10. 20852 -> 0x5174
+  int32 squawk = 5;
+  int32 vspeed = 6;
+  // Aircraft age, years.
+  string age = 7;
+  int32 country_of_reg = 8;
+  Schedule schedule = 9;
+  int32 logo_id = 10; // u32
+  int32 airspace = 11; // FIR
+  EMSInfo ems_info = 12;
+  EMSAvailability ems_availability = 13;
+  uint32 icao_address = 14;
+  uint32 operated_by_id = 15;
+  bool squawk_availability = 16;
+  bool vspeed_availability = 17;
+  bool airspace_availability = 18;
+  string airspace_id = 19;
+}
+
+message SourceStats {
+  DataSource source = 1;
+  uint32 count = 2;
+}
+
+message Stats {
+  repeated SourceStats total_list = 1;
+}
+
+message RecentPosition {
+  // Offset from the current latitude, 1e5 degrees
+  int32 delta_lat = 1;
+  // Offset from the current longitude, 1e5 degrees
+  int32 delta_lon = 2;
+  uint32 delta_ms = 3;
+}
+
+message PositionBuffer {
+  repeated RecentPosition recent_positions_list = 1;
+}
+
+message Flight {
+  // FR24 flight id, in base-10. Convert to hex for use in URLs.
+  int32 flightid = 1;
+  // Latitude, degrees, -90 to 90
+  float lat = 2;
+  // Longitude, degrees, -180 to 180
+  float lon = 3;
+  // True track angle, degrees clockwise from North
+  int32 track = 4;
+  // Barometric altitude, feet
+  int32 alt = 5;
+  // Ground speed, knots
+  int32 speed = 6;
+  Icon icon = 7;
+  Status status = 8;
+  int32 timestamp = 9;
+  bool on_ground = 10;
+  // Callsign, e.g. `CPA8747`
+  string callsign = 11;
+  DataSource source = 12;
+  ExtraFlightInfo extra_info = 13;
+  PositionBuffer position_buffer = 14;
+}
+
+// NOTE: unused anywhere
+enum EmergencyStatus {
+  NO_EMERGENCY = 0;
+  GENERAL_EMERGENCY = 1;
+  LIFEGUARD_MEDICAL_EMERGENCY = 2;
+  MINIMUM_FUEL = 3;
+  NO_COMMUNICATIONS = 4;
+  UNLAWFUL_INTERFERENCE = 5;
+  DOWNED_AIRCRAFT = 6;
+  RESERVED = 7;
+}
+
+// used in CountDown
+message Duration {
+  uint32 count = 1;
+}
+
+message Tick {
+  uint32 count = 1;
+}
+
+// used in *trail
+message RadarHistoryRecord {
+  uint64 timestamp = 1;
+  float lat = 2;
+  float lon = 3;
+  int32 altitude = 4;
+  uint32 spd = 5;
+  // True track angle, degrees clockwise from North.
+  // Note: despite the name, heading is not transmitted in ADS-B.
+  uint32 heading = 6;
+  int32 vspd = 7;
+  uint32 squawk = 8;
+  common.DataSource source = 9; // ?
+  string callsign = 10;
+}
