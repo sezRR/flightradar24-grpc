@@ -20,10 +20,12 @@ func main() {
 
 	log.Println("Top flights:", topFlights)
 
-	_, err = endpoints.GetLiveFlights()
+	liveFeed, err := endpoints.GetLiveFeed()
 	if err != nil {
 		return
 	}
+
+	log.Println("Live feed:", liveFeed.Stats.TotalList)
 
 	wg.Wait()
 }

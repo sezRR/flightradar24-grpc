@@ -37,15 +37,15 @@ func extractPayload(data []byte) ([]byte, error) {
 	return payload[GrpcFrameHeaderSize : GrpcFrameHeaderSize+int(msgLength)], nil
 }
 
-func DecodeGRPCMessage(data []byte, msg proto.Message) (proto.Message, error) {
+func DecodeGRPCMessage[T proto.Message](data []byte, msg T) (T, error) {
 	payload, err := extractPayload(data)
 	if err != nil {
-		return nil, fmt.Errorf("failed to clear gRPC frame: %w", err)
+		return *new(T), fmt.Errorf("failed to clear gRPC frame: %w", err)
 	}
 
 	err = proto.Unmarshal(payload, msg)
 	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal message: %w", err)
+		return *new(T), fmt.Errorf("failed to unmarshal message: %w", err)
 	}
 
 	return msg, nil

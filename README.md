@@ -2,14 +2,14 @@
 It is a basic repository to be able to use FlightRadar24 gRPC request responses within API with using Go!
 
 ## Todos
-- [ ] Implement `LiveFeed` method
+- [X] Implement `LiveFeed` method
 - [ ] Implement `NearestFlights` method
 - [ ] Implement `LiveFlightsStatus` method
 - [ ] Implement `FollowFlight` method
 - [ ] Add configuration file for endpoints
 
 ## Methods
-- `LiveFeed` https://data-feed.flightradar24.com/fr24.feed.api.v1.Feed/LiveFeed
+- [X] `LiveFeed` https://data-feed.flightradar24.com/fr24.feed.api.v1.Feed/LiveFeed
 - `Playback`
 - `NearestFlights`
 - `LiveFlightsStatus`
